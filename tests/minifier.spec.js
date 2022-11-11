@@ -713,42 +713,8 @@ test('remove CDATA sections from scripts/styles', async () => {
 test('custom processors', async () => {
   let input, output;
 
-  function css(text, type) {
-    return (type || 'Normal') + ' CSS';
-  }
-
-  async function asyncCss(text, type) {
-    return (type || 'Normal') + ' CSS';
-  }
-
   input = '<style>\n.foo { font: 12pt "bar" } </style>';
   expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: null })).toBe(input);
-  expect(await minify(input, { minifyCSS: false })).toBe(input);
-  output = '<style>Normal CSS</style>';
-  expect(await minify(input, { minifyCSS: css })).toBe(output);
-  expect(await minify(input, { minifyCSS: asyncCss })).toBe(output);
-
-  input = '<p style="font: 12pt \'bar\'"></p>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: null })).toBe(input);
-  expect(await minify(input, { minifyCSS: false })).toBe(input);
-  output = '<p style="inline CSS"></p>';
-  expect(await minify(input, { minifyCSS: css })).toBe(output);
-
-  input = '<link rel="stylesheet" href="css/style-mobile.css" media="(max-width: 737px)">';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: null })).toBe(input);
-  expect(await minify(input, { minifyCSS: false })).toBe(input);
-  output = '<link rel="stylesheet" href="css/style-mobile.css" media="media CSS">';
-  expect(await minify(input, { minifyCSS: css })).toBe(output);
-
-  input = '<style media="(max-width: 737px)"></style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: null })).toBe(input);
-  expect(await minify(input, { minifyCSS: false })).toBe(input);
-  output = '<style media="media CSS">Normal CSS</style>';
-  expect(await minify(input, { minifyCSS: css })).toBe(output);
 
   function js(text, inline) {
     return inline ? 'Inline JS' : 'Normal JS';
