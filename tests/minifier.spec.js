@@ -666,54 +666,6 @@ test('remove comments from scripts', async () => {
   expect(await minify(input, { minifyJS: true })).toBe(input);
 });
 
-test('remove comments from styles', async () => {
-  let input, output;
-
-  input = '<style><!--\np.a{background:red}\n--></style>';
-  expect(await minify(input)).toBe(input);
-  output = '<style>p.a{background:red}</style>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-
-  input = '<style><!--p.b{background:red}--></style>';
-  expect(await minify(input)).toBe(input);
-  output = '<style>p.b{background:red}</style>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-
-  input = '<style><!--p.c{background:red}\n--></style>';
-  expect(await minify(input)).toBe(input);
-  output = '<style>p.c{background:red}</style>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-
-  input = '<style><!--\np.d{background:red}--></style>';
-  expect(await minify(input)).toBe(input);
-  output = '<style>p.d{background:red}</style>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-
-  input = '<style><!--p.e{background:red}\np.f{background:red}\np.g{background:red}--></style>';
-  expect(await minify(input)).toBe(input);
-  output = '<style>p.e{background:red}p.f{background:red}p.g{background:red}</style>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-
-  input = '<style>p.h{background:red}<!--\np.i{background:red}\n-->p.j{background:red}</style>';
-  expect(await minify(input)).toBe(input);
-  output = '<style>p.h{background:red}p.i{background:red}p.j{background:red}</style>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-
-  input = '<style type="text/css"><!-- p { color: red } --></style>';
-  expect(await minify(input)).toBe(input);
-  output = '<style type="text/css">p{color:red}</style>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-
-  input = '<style type="text/css">p::before { content: "<!--" }</style>';
-  expect(await minify(input)).toBe(input);
-  output = '<style type="text/css">p::before{content:"<!--"}</style>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-
-  input = '<style type="text/html">\n<div>\n</div>\n<!-- aa -->\n</style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: true })).toBe(input);
-});
-
 test('remove CDATA sections from scripts/styles', async () => {
   let input, output;
 
@@ -756,45 +708,6 @@ test('remove CDATA sections from scripts/styles', async () => {
   expect(await minify(input)).toBe(input);
   output = '<script>alert(11)</script>';
   expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<style><![CDATA[\np.a{background:red}\n]]></style>';
-  expect(await minify(input)).toBe(input);
-  output = '<style></style>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-
-  input = '<style><![CDATA[p.b{background:red}]]></style>';
-  expect(await minify(input)).toBe(input);
-  output = '<style></style>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-
-  input = '<style><![CDATA[p.c{background:red}\n]]></style>';
-  expect(await minify(input)).toBe(input);
-  output = '<style></style>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-
-  input = '<style><![CDATA[\np.d{background:red}]]></style>';
-  expect(await minify(input)).toBe(input);
-  output = '<style></style>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-
-  input = '<style><![CDATA[p.e{background:red}\np.f{background:red}\np.g{background:red}]]></style>';
-  expect(await minify(input)).toBe(input);
-  output = '<style>p.f{background:red}p.g{background:red}</style>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-
-  input = '<style>p.h{background:red}<![CDATA[\np.i{background:red}\n]]>p.j{background:red}</style>';
-  expect(await minify(input)).toBe(input);
-  output = '<style>p.h{background:red}]]>p.j{background:red}</style>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-
-  input = '<style>/* <![CDATA[ */p { color: red } // ]]></style>';
-  expect(await minify(input)).toBe(input);
-  output = '<style>p{color:red}</style>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-
-  input = '<style type="text/html">\n<div>\n</div>\n<![CDATA[ aa ]]>\n</style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: true })).toBe(input);
 });
 
 test('custom processors', async () => {
@@ -871,8 +784,6 @@ test('custom processors', async () => {
   expect(await minify(input, { minifyURLs: null })).toBe(input);
   expect(await minify(input, { minifyURLs: false })).toBe(input);
   expect(await minify(input, { minifyURLs: url })).toBe(input);
-  output = '<style>.foo{background:url("URL")}</style>';
-  expect(await minify(input, { minifyCSS: true, minifyURLs: url })).toBe(output);
 });
 
 test('empty attributes', async () => {
@@ -1992,10 +1903,6 @@ test('Ignore custom fragments', async () => {
   input = '<script>var value="<?php ?>+<?php ?>0"</script>';
   expect(await minify(input)).toBe(input);
   expect(await minify(input, { minifyJS: true })).toBe(input);
-
-  input = '<style>body{font-size:<%=1%>2pt}</style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: true })).toBe(input);
 });
 
 test('bootstrap\'s span > button > span', async () => {
@@ -2298,152 +2205,6 @@ test('escaping closing script tag', async () => {
   expect(await minify(input, { minifyJS: true })).toBe(output);
 });
 
-test('style minification', async () => {
-  let input, output;
-
-  input = '<style></style>div#foo { background-color: red; color: white }';
-  expect(await minify(input, { minifyCSS: true })).toBe(input);
-
-  input = '<style>div#foo { background-color: red; color: white }</style>';
-  output = '<style>div#foo{background-color:red;color:#fff}</style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-
-  input = '<style>div > p.foo + span { border: 10px solid black }</style>';
-  output = '<style>div>p.foo+span{border:10px solid #000}</style>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-
-  input = '<div style="background: url(images/<% image %>);"></div>';
-  expect(await minify(input)).toBe(input);
-  output = '<div style="background:url(images/<% image %>)"></div>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-  expect(await minify(input, {
-    collapseWhitespace: true,
-    minifyCSS: true
-  })).toBe(output);
-
-  input = '<div style="background: url(\'images/<% image %>\')"></div>';
-  expect(await minify(input)).toBe(input);
-  output = '<div style="background:url(\'images/<% image %>\')"></div>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-  expect(await minify(input, {
-    collapseWhitespace: true,
-    minifyCSS: true
-  })).toBe(output);
-
-  input = '<style>\np {\n  background: url(images/<% image %>);\n}\n</style>';
-  expect(await minify(input)).toBe(input);
-  output = '<style>p{background:url(images/<% image %>)}</style>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-  expect(await minify(input, {
-    collapseWhitespace: true,
-    minifyCSS: true
-  })).toBe(output);
-
-  input = '<style>p { background: url("images/<% image %>") }</style>';
-  expect(await minify(input)).toBe(input);
-  output = '<style>p{background:url("images/<% image %>")}</style>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-  expect(await minify(input, {
-    collapseWhitespace: true,
-    minifyCSS: true
-  })).toBe(output);
-
-  input = '<link rel="stylesheet" href="css/style-mobile.css" media="(max-width: 737px)">';
-  expect(await minify(input)).toBe(input);
-  output = '<link rel="stylesheet" href="css/style-mobile.css" media="(max-width:737px)">';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-  output = '<link rel=stylesheet href=css/style-mobile.css media=(max-width:737px)>';
-  expect(await minify(input, {
-    minifyCSS: true,
-    removeAttributeQuotes: true
-  })).toBe(output);
-
-  input = '<style media="(max-width: 737px)"></style>';
-  expect(await minify(input)).toBe(input);
-  output = '<style media="(max-width:737px)"></style>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-  output = '<style media=(max-width:737px)></style>';
-  expect(await minify(input, {
-    minifyCSS: true,
-    removeAttributeQuotes: true
-  })).toBe(output);
-});
-
-test('style attribute minification', async () => {
-  const input = '<div style="color: red; background-color: yellow; font-family: Verdana, Arial, sans-serif;"></div>';
-  const output = '<div style="color:red;background-color:#ff0;font-family:Verdana,Arial,sans-serif"></div>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-});
-
-test('minification of style with custom fragments', async () => {
-  let input;
-
-  input = '<style><?foo?></style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: true })).toBe(input);
-
-  input = '<style>\t<?foo?>\t</style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: true })).toBe(input);
-
-  input = '<style><?foo?>{color:red}</style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: true })).toBe(input);
-
-  input = '<style>\t<?foo?>\t{color:red}</style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: true })).toBe(input);
-
-  input = '<style>body{<?foo?>}</style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: true })).toBe(input);
-
-  input = '<style>body{\t<?foo?>\t}</style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: true })).toBe(input);
-
-  input = '<style><?foo?>body{color:red}</style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: true })).toBe(input);
-
-  input = '<style>\t<?foo?>\tbody{color:red}</style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: true })).toBe(input);
-
-  input = '<style>body{<?foo?>color:red}</style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: true })).toBe(input);
-
-  input = '<style>body{\t<?foo?>\tcolor:red}</style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: true })).toBe(input);
-
-  input = '<style>body{color:red<?foo?>}</style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: true })).toBe(input);
-
-  input = '<style>body{color:red\t<?foo?>\t}</style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: true })).toBe(input);
-
-  input = '<style>body{color:red;<?foo?>}</style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: true })).toBe(input);
-
-  input = '<style>body{color:red;\t<?foo?>\t}</style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: true })).toBe(input);
-
-  input = '<style>body{color:red}<?foo?></style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: true })).toBe(input);
-
-  input = '<style>body{color:red}\t<?foo?>\t</style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyCSS: true })).toBe(input);
-});
-
 test('url attribute minification', async () => {
   let input, output;
 
@@ -2459,47 +2220,14 @@ test('url attribute minification', async () => {
   input = '<style>body { background: url(\'http://website.com/bg.png\') }</style>';
   expect(await minify(input, { minifyURLs: 'http://website.com/' })).toBe(input);
   expect(await minify(input, { minifyURLs: { site: 'http://website.com/' } })).toBe(input);
-  output = '<style>body{background:url(\'http://website.com/bg.png\')}</style>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-  output = '<style>body{background:url(\'bg.png\')}</style>';
-  expect(await minify(input, {
-    minifyCSS: true,
-    minifyURLs: 'http://website.com/'
-  })).toBe(output);
-  expect(await minify(input, {
-    minifyCSS: true,
-    minifyURLs: { site: 'http://website.com/' }
-  })).toBe(output);
 
   input = '<style>body { background: url("http://website.com/foo bar/bg.png") }</style>';
   expect(await minify(input, { minifyURLs: { site: 'http://website.com/foo bar/' } })).toBe(input);
-  output = '<style>body{background:url("http://website.com/foo bar/bg.png")}</style>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-  output = '<style>body{background:url("bg.png")}</style>';
-  expect(await minify(input, {
-    minifyCSS: true,
-    minifyURLs: { site: 'http://website.com/foo bar/' }
-  })).toBe(output);
 
   input = '<style>body { background: url("http://website.com/foo bar/(baz)/bg.png") }</style>';
   expect(await minify(input, { minifyURLs: { site: 'http://website.com/' } })).toBe(input);
   expect(await minify(input, { minifyURLs: { site: 'http://website.com/foo%20bar/' } })).toBe(input);
   expect(await minify(input, { minifyURLs: { site: 'http://website.com/foo%20bar/(baz)/' } })).toBe(input);
-  output = '<style>body{background:url("foo%20bar/(baz)/bg.png")}</style>';
-  expect(await minify(input, {
-    minifyCSS: true,
-    minifyURLs: { site: 'http://website.com/' }
-  })).toBe(output);
-  output = '<style>body{background:url("(baz)/bg.png")}</style>';
-  expect(await minify(input, {
-    minifyCSS: true,
-    minifyURLs: { site: 'http://website.com/foo%20bar/' }
-  })).toBe(output);
-  output = '<style>body{background:url("bg.png")}</style>';
-  expect(await minify(input, {
-    minifyCSS: true,
-    minifyURLs: { site: 'http://website.com/foo%20bar/(baz)/' }
-  })).toBe(output);
 
   input = '<img src="http://cdn.site.com/foo.png">';
   output = '<img src="//cdn.site.com/foo.png">';
@@ -3406,11 +3134,6 @@ test('decode entity characters', async () => {
   expect(await minify(input, { decodeEntities: false })).toBe(input);
   output = '<div style=\'font: "monospace"\'>foo$</div>';
   expect(await minify(input, { decodeEntities: true })).toBe(output);
-  output = '<div style="font:&quot">foo&dollar;</div>';
-  expect(await minify(input, { minifyCSS: true })).toBe(output);
-  expect(await minify(input, { decodeEntities: false, minifyCSS: true })).toBe(output);
-  output = '<div style="font:monospace">foo$</div>';
-  expect(await minify(input, { decodeEntities: true, minifyCSS: true })).toBe(output);
 
   input = '<a href="/?foo=1&amp;bar=&lt;2&gt;">baz&lt;moo&gt;&copy;</a>';
   expect(await minify(input)).toBe(input);
