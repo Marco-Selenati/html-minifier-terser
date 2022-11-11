@@ -71,13 +71,6 @@ const defaultOptions = [
     helpText: 'Specify a maximum line length. Compressed output will be split by newlines at valid HTML split-points'
   },
   {
-    id: 'minifyCSS',
-    type: 'checkbox',
-    label: 'Minify CSS',
-    helpText: 'Minify CSS in style elements and style attributes (uses <code>clean-css</code>)',
-    checked: true
-  },
-  {
     id: 'minifyJS',
     type: 'checkbox',
     label: 'Minify JavaScript',

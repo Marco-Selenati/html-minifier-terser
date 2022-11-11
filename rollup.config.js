@@ -53,7 +53,7 @@ const config = defineConfig([
       format: 'cjs',
       exports: 'named'
     },
-    external: ['clean-css', 'terser', 'entities', 'relateurl']
+    external: ['terser', 'entities', 'relateurl']
   }
 ]);
 
