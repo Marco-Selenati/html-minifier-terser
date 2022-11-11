@@ -123,10 +123,7 @@ describe('cli', () => {
     const input = await readFixture('url.html');
 
     const minfiyOptions = {
-      collapseWhitespace: true,
-      minifyURLs: {
-        site: 'http://website.com/folder/'
-      }
+      collapseWhitespace: true
     };
 
     const cliArguments = [

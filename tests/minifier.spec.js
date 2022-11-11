@@ -733,23 +733,6 @@ test('custom processors', async () => {
   expect(await minify(input, { minifyJS: false })).toBe(input);
   output = '<p onload="Inline JS"></p>';
   expect(await minify(input, { minifyJS: js })).toBe(output);
-
-  function url() {
-    return 'URL';
-  }
-
-  input = '<a href="http://site.com/foo">bar</a>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyURLs: null })).toBe(input);
-  expect(await minify(input, { minifyURLs: false })).toBe(input);
-  output = '<a href="URL">bar</a>';
-  expect(await minify(input, { minifyURLs: url })).toBe(output);
-
-  input = '<style>\n.foo { background: url("http://site.com/foo") } </style>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyURLs: null })).toBe(input);
-  expect(await minify(input, { minifyURLs: false })).toBe(input);
-  expect(await minify(input, { minifyURLs: url })).toBe(input);
 });
 
 test('empty attributes', async () => {
@@ -2171,43 +2154,11 @@ test('escaping closing script tag', async () => {
   expect(await minify(input, { minifyJS: true })).toBe(output);
 });
 
-test('url attribute minification', async () => {
-  let input, output;
-
-  input = '<link rel="stylesheet" href="http://website.com/style.css"><form action="http://website.com/folder/folder2/index.html"><a href="http://website.com/folder/file.html">link</a></form>';
-  output = '<link rel="stylesheet" href="/style.css"><form action="folder2/"><a href="file.html">link</a></form>';
-  expect(await minify(input, { minifyURLs: 'http://website.com/folder/' })).toBe(output);
-  expect(await minify(input, { minifyURLs: { site: 'http://website.com/folder/' } })).toBe(output);
-
-  input = '<link rel="canonical" href="http://website.com/">';
-  expect(await minify(input, { minifyURLs: 'http://website.com/' })).toBe(input);
-  expect(await minify(input, { minifyURLs: { site: 'http://website.com/' } })).toBe(input);
-
-  input = '<style>body { background: url(\'http://website.com/bg.png\') }</style>';
-  expect(await minify(input, { minifyURLs: 'http://website.com/' })).toBe(input);
-  expect(await minify(input, { minifyURLs: { site: 'http://website.com/' } })).toBe(input);
-
-  input = '<style>body { background: url("http://website.com/foo bar/bg.png") }</style>';
-  expect(await minify(input, { minifyURLs: { site: 'http://website.com/foo bar/' } })).toBe(input);
-
-  input = '<style>body { background: url("http://website.com/foo bar/(baz)/bg.png") }</style>';
-  expect(await minify(input, { minifyURLs: { site: 'http://website.com/' } })).toBe(input);
-  expect(await minify(input, { minifyURLs: { site: 'http://website.com/foo%20bar/' } })).toBe(input);
-  expect(await minify(input, { minifyURLs: { site: 'http://website.com/foo%20bar/(baz)/' } })).toBe(input);
-
-  input = '<img src="http://cdn.site.com/foo.png">';
-  output = '<img src="//cdn.site.com/foo.png">';
-  expect(await minify(input, { minifyURLs: { site: 'http://site.com/' } })).toBe(output);
-});
-
 test('srcset attribute minification', async () => {
-  let output;
+  const output = '<source srcset="http://site.com/foo.gif, http://site.com/bar.jpg, baz moo 42w, http://site.com/zo om.png">';
   const input = '<source srcset="http://site.com/foo.gif ,http://site.com/bar.jpg 1x, baz moo 42w,' +
     '\n\n\n\n\n\t    http://site.com/zo om.png 1.00x">';
-  output = '<source srcset="http://site.com/foo.gif, http://site.com/bar.jpg, baz moo 42w, http://site.com/zo om.png">';
   expect(await minify(input)).toBe(output);
-  output = '<source srcset="foo.gif, bar.jpg, baz%20moo 42w, zo%20om.png">';
-  expect(await minify(input, { minifyURLs: { site: 'http://site.com/' } })).toBe(output);
 });
 
 test('valueless attributes', async () => {

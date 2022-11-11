@@ -44,9 +44,6 @@ function loadModule() {
 
 function getOptions(fileName, options) {
   const result = {
-    minifyURLs: {
-      site: urls[fileName]
-    }
   };
   for (const key in options) {
     result[key] = options[key];

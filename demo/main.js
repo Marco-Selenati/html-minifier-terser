@@ -78,12 +78,6 @@ const defaultOptions = [
     checked: true
   },
   {
-    id: 'minifyURLs',
-    type: 'checkbox',
-    label: 'Minify URLs',
-    helpText: 'Minify URLs in various attributes (uses <code>relateurl</code>)'
-  },
-  {
     id: 'noNewlinesBeforeTagClose',
     type: 'checkbox',
     label: 'No newline before Tag Close',
