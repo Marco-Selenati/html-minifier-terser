@@ -117,42 +117,4 @@ describe('cli', () => {
     execCli(cliArguments);
     expect(existsFixutre('tmp/nested/default.html')).toBe(true);
   });
-
-  // parsing json
-  test('should minify urls correctly', async () => {
-    const input = await readFixture('url.html');
-
-    const minfiyOptions = {
-      collapseWhitespace: true
-    };
-
-    const cliArguments = [
-      'url.html',
-      '--collapse-whitespace'
-    ];
-
-    const cliMinifiedHTML = execCli(cliArguments);
-    const minifedHTML = await minify(input, minfiyOptions);
-    expect(cliMinifiedHTML).toBe(minifedHTML);
-  });
-
-  // parsing string inputs
-  test('should set quote char correctly', async () => {
-    const input = await readFixture('quote-char.html');
-
-    const minfiyOptions = {
-      collapseWhitespace: true,
-      quoteCharacter: '\''
-    };
-
-    const cliArguments = [
-      'quote-char.html',
-      '--collapse-whitespace',
-      '--quote-character=\''
-    ];
-
-    const cliMinifiedHTML = execCli(cliArguments);
-    const minifedHTML = await minify(input, minfiyOptions);
-    expect(cliMinifiedHTML).toBe(minifedHTML);
-  });
 });
