@@ -188,7 +188,7 @@ run(fileNames.map(function (fileName) {
 
   function processFile(site, done) {
     const original = {
-      filePath: filePath,
+      filePath,
       gzFilePath: path.join('./generated/', fileName + '.html.gz'),
       lzFilePath: path.join('./generated/', fileName + '.html.lz'),
       brFilePath: path.join('./generated/', fileName + '.html.br')
@@ -259,7 +259,7 @@ run(fileNames.map(function (fileName) {
     function testHTMLMinifier(done) {
       const info = infos.minifier;
       info.startTime = Date.now();
-      const args = [filePath, '-c', 'sample-cli-config-file.conf', '--minify-urls', site, '-o', info.filePath];
+      const args = [filePath, '-c', 'sample-cli-config-file.conf', site, '-o', info.filePath];
       fork('../cli', args).on('exit', function () {
         readSizes(info, done);
       });
@@ -416,8 +416,8 @@ run(fileNames.map(function (fileName) {
         ].join('\n')
       );
       rows[fileName] = {
-        display: display,
-        report: report
+        display,
+        report
       };
       progress.tick({ fileName: '' });
       done();
@@ -445,7 +445,7 @@ run(fileNames.map(function (fileName) {
   }
 
   return function (done) {
-    progress.tick(0, { fileName: fileName });
+    progress.tick(0, { fileName });
     get(urls[fileName], function (site) {
       processFile(site, done);
     });
