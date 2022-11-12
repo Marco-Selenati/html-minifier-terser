@@ -490,7 +490,7 @@ test('ignoring comments', async () => {
 });
 
 test('conditional comments', async () => {
-  let input, output;
+  let input;
 
   input = '<![if IE 5]>test<![endif]>';
   expect(await minify(input, { removeComments: true })).toBe(input);
@@ -510,39 +510,6 @@ test('conditional comments', async () => {
   input = '<!--[if (gt IE 5)&(lt IE 7)]>test<![endif]-->';
   expect(await minify(input, { removeComments: true })).toBe(input);
 
-  input = '<html>\n' +
-    '  <head>\n' +
-    '    <!--[if lte IE 8]>\n' +
-    '      <script type="text/javascript">\n' +
-    '        alert("ie8!");\n' +
-    '      </script>\n' +
-    '    <![endif]-->\n' +
-    '  </head>\n' +
-    '  <body>\n' +
-    '  </body>\n' +
-    '</html>';
-  output = '<head><!--[if lte IE 8]>\n' +
-    '      <script type="text/javascript">\n' +
-    '        alert("ie8!");\n' +
-    '      </script>\n' +
-    '    <![endif]-->';
-  expect(await minify(input, {
-    minifyJS: true,
-    removeComments: true,
-    collapseWhitespace: true,
-    removeOptionalTags: true,
-    removeScriptTypeAttributes: true
-  })).toBe(output);
-  output = '<head><!--[if lte IE 8]><script>alert("ie8!")</script><![endif]-->';
-  expect(await minify(input, {
-    minifyJS: true,
-    removeComments: true,
-    collapseWhitespace: true,
-    removeOptionalTags: true,
-    removeScriptTypeAttributes: true,
-    processConditionalComments: true
-  })).toBe(output);
-
   input = '<!DOCTYPE html>\n' +
     '<html lang="en">\n' +
     '  <head>\n' +
@@ -559,7 +526,7 @@ test('conditional comments', async () => {
     '  <body>\n' +
     '  </body>\n' +
     '</html>';
-  output = '<!DOCTYPE html>' +
+  const output = '<!DOCTYPE html>' +
     '<html lang="en">' +
     '<head>' +
     '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">' +
@@ -614,125 +581,6 @@ test('collapsing space in conditional comments', async () => {
     collapseWhitespace: true,
     processConditionalComments: true
   })).toBe(output);
-});
-
-test('remove comments from scripts', async () => {
-  let input, output;
-
-  input = '<script><!--\nalert(1);\n--></script>';
-  expect(await minify(input)).toBe(input);
-  output = '<script>alert(1)</script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<script><!--alert(2);--></script>';
-  expect(await minify(input)).toBe(input);
-  output = '<script></script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<script><!--alert(3);\n--></script>';
-  expect(await minify(input)).toBe(input);
-  output = '<script></script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<script><!--\nalert(4);--></script>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyJS: true })).toBe(input);
-
-  input = '<script><!--alert(5);\nalert(6);\nalert(7);--></script>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyJS: true })).toBe(input);
-
-  input = '<script><!--alert(8)</script>';
-  expect(await minify(input)).toBe(input);
-  output = '<script></script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<script type="text/javascript"> \n <!--\nalert("-->"); -->\n\n   </script>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyJS: true })).toBe(input);
-
-  input = '<script type="text/javascript"> \n <!--\nalert("-->");\n -->\n\n   </script>';
-  expect(await minify(input)).toBe(input);
-  output = '<script type="text/javascript">alert("--\\x3e")</script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<script> //   <!--   \n  alert(1)   //  --> </script>';
-  expect(await minify(input)).toBe(input);
-  output = '<script>alert(1)</script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<script type="text/html">\n<div>\n</div>\n<!-- aa -->\n</script>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyJS: true })).toBe(input);
-});
-
-test('remove CDATA sections from scripts/styles', async () => {
-  let input, output;
-
-  input = '<script><![CDATA[\nalert(1)\n]]></script>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyJS: true })).toBe(input);
-
-  input = '<script><![CDATA[alert(2)]]></script>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyJS: true })).toBe(input);
-
-  input = '<script><![CDATA[alert(3)\n]]></script>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyJS: true })).toBe(input);
-
-  input = '<script><![CDATA[\nalert(4)]]></script>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyJS: true })).toBe(input);
-
-  input = '<script><![CDATA[alert(5)\nalert(6)\nalert(7)]]></script>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyJS: true })).toBe(input);
-
-  input = '<script>/*<![CDATA[*/alert(8)/*]]>*/</script>';
-  expect(await minify(input)).toBe(input);
-  output = '<script>alert(8)</script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<script>//<![CDATA[\nalert(9)\n//]]></script>';
-  expect(await minify(input)).toBe(input);
-  output = '<script>alert(9)</script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<script type="text/javascript"> /* \n\t  <![CDATA[  */ alert(10) /*  ]]>  */ \n </script>';
-  expect(await minify(input)).toBe(input);
-  output = '<script type="text/javascript">alert(10)</script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<script>\n\n//<![CDATA[\nalert(11)//]]></script>';
-  expect(await minify(input)).toBe(input);
-  output = '<script>alert(11)</script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-});
-
-test('custom processors', async () => {
-  let input, output;
-
-  input = '<style>\n.foo { font: 12pt "bar" } </style>';
-  expect(await minify(input)).toBe(input);
-
-  function js(text, inline) {
-    return inline ? 'Inline JS' : 'Normal JS';
-  }
-
-  input = '<script>\nalert(1); </script>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyJS: null })).toBe(input);
-  expect(await minify(input, { minifyJS: false })).toBe(input);
-  output = '<script>Normal JS</script>';
-  expect(await minify(input, { minifyJS: js })).toBe(output);
-
-  input = '<p onload="alert(1);"></p>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyJS: null })).toBe(input);
-  expect(await minify(input, { minifyJS: false })).toBe(input);
-  output = '<p onload="Inline JS"></p>';
-  expect(await minify(input, { minifyJS: js })).toBe(output);
 });
 
 test('empty attributes', async () => {
@@ -1848,10 +1696,6 @@ test('Ignore custom fragments', async () => {
   input = '<pre>\nfoo\n<? bar ?>\nbaz\n</pre>';
   expect(await minify(input)).toBe(input);
   expect(await minify(input, { collapseWhitespace: true })).toBe(input);
-
-  input = '<script>var value="<?php ?>+<?php ?>0"</script>';
-  expect(await minify(input)).toBe(input);
-  expect(await minify(input, { minifyJS: true })).toBe(input);
 });
 
 test('bootstrap\'s span > button > span', async () => {
@@ -1915,243 +1759,6 @@ test('nested quotes', async () => {
 
   const output = '<div data="{&#34;test&#34;:&#34;\\&#34;test\\&#34;&#34;}"></div>';
   expect(await minify(input, { quoteCharacter: '"' })).toBe(output);
-});
-
-test('script minification', async () => {
-  let input, output;
-
-  input = '<script></script>(function(){ var foo = 1; var bar = 2; alert(foo + " " + bar); })()';
-
-  expect(await minify(input, { minifyJS: true })).toBe(input);
-
-  input = '<script>(function(){ var foo = 1; var bar = 2; alert(foo + " " + bar); })()</script>';
-  output = '<script>alert("1 2")</script>';
-
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<script type="text/JavaScript">(function(){ var foo = 1; var bar = 2; alert(foo + " " + bar); })()</script>';
-  output = '<script type="text/JavaScript">alert("1 2")</script>';
-
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<script type="application/javascript;version=1.8">(function(){ var foo = 1; var bar = 2; alert(foo + " " + bar); })()</script>';
-  output = '<script type="application/javascript;version=1.8">alert("1 2")</script>';
-
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<script type=" application/javascript  ; charset=utf-8 ">(function(){ var foo = 1; var bar = 2; alert(foo + " " + bar); })()</script>';
-  output = '<script type="application/javascript;charset=utf-8">alert("1 2")</script>';
-
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({\'gtm.start\':new Date().getTime(),event:\'gtm.js\'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!=\'dataLayer\'?\'&l=\'+l:\'\';j.async=true;j.src=\'//www.googletagmanager.com/gtm.js?id=\'+i+dl;f.parentNode.insertBefore(j,f);})(window,document,\'script\',\'dataLayer\',\'GTM-67NT\');</script>';
-  output = '<script>!function(w,d,s,l,i){w[l]=w[l]||[],w[l].push({"gtm.start":(new Date).getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0],j=d.createElement(s);j.async=!0,j.src="//www.googletagmanager.com/gtm.js?id=GTM-67NT",f.parentNode.insertBefore(j,f)}(window,document,"script","dataLayer")</script>';
-
-  expect(await minify(input, { minifyJS: { mangle: false } })).toBe(output);
-
-  input = '<script>\n' +
-    '  <!--\n' +
-    '    Platform.Mobile.Bootstrap.init(function () {\n' +
-    '      Platform.Mobile.Core.Navigation.go("Login", {\n' +
-    '        "error": ""\n' +
-    '      });\n' +
-    '    });\n' +
-    '  //-->\n' +
-    '</script>';
-  output = '<script>Platform.Mobile.Bootstrap.init((function(){Platform.Mobile.Core.Navigation.go("Login",{error:""})}))</script>';
-
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-});
-
-test('minification of scripts with different mimetypes', async () => {
-  let input, output;
-
-  input = '<script type="">function f(){  return 1  }</script>';
-  output = '<script type="">function f(){return 1}</script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<script type="text/javascript">function f(){  return 1  }</script>';
-  output = '<script type="text/javascript">function f(){return 1}</script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<script foo="bar">function f(){  return 1  }</script>';
-  output = '<script foo="bar">function f(){return 1}</script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<script type="text/ecmascript">function f(){  return 1  }</script>';
-  output = '<script type="text/ecmascript">function f(){return 1}</script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<script type="application/javascript">function f(){  return 1  }</script>';
-  output = '<script type="application/javascript">function f(){return 1}</script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<script type="boo">function f(){  return 1  }</script>';
-  expect(await minify(input, { minifyJS: true })).toBe(input);
-
-  input = '<script type="text/html"><!-- ko if: true -->\n\n\n<div></div>\n\n\n<!-- /ko --></script>';
-  expect(await minify(input, { minifyJS: true })).toBe(input);
-});
-
-test('minification of scripts with custom fragments', async () => {
-  let input, output;
-
-  input = '<script><?php ?></script>';
-  expect(await minify(input, { minifyJS: true })).toBe(input);
-  expect(await minify(input, { collapseWhitespace: true, minifyJS: true })).toBe(input);
-  expect(await minify(input, {
-    collapseWhitespace: true,
-    minifyJS: true,
-    preserveLineBreaks: true
-  })).toBe(input);
-
-  input = '<script>\n<?php ?></script>';
-  expect(await minify(input, { minifyJS: true })).toBe(input);
-  output = '<script> <?php ?></script>';
-  expect(await minify(input, { collapseWhitespace: true, minifyJS: true })).toBe(output);
-  expect(await minify(input, {
-    collapseWhitespace: true,
-    minifyJS: true,
-    preserveLineBreaks: true
-  })).toBe(input);
-
-  input = '<script><?php ?>\n</script>';
-  expect(await minify(input, { minifyJS: true })).toBe(input);
-  output = '<script><?php ?> </script>';
-  expect(await minify(input, { collapseWhitespace: true, minifyJS: true })).toBe(output);
-  expect(await minify(input, {
-    collapseWhitespace: true,
-    minifyJS: true,
-    preserveLineBreaks: true
-  })).toBe(input);
-
-  input = '<script>\n<?php ?>\n</script>';
-  expect(await minify(input, { minifyJS: true })).toBe(input);
-  output = '<script> <?php ?> </script>';
-  expect(await minify(input, { collapseWhitespace: true, minifyJS: true })).toBe(output);
-  expect(await minify(input, {
-    collapseWhitespace: true,
-    minifyJS: true,
-    preserveLineBreaks: true
-  })).toBe(input);
-
-  input = '<script>// <% ... %></script>';
-  output = '<script></script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-  expect(await minify(input, { collapseWhitespace: true, minifyJS: true })).toBe(output);
-  expect(await minify(input, {
-    collapseWhitespace: true,
-    minifyJS: true,
-    preserveLineBreaks: true
-  })).toBe(output);
-
-  input = '<script>// \n<% ... %></script>';
-  output = '<script> \n<% ... %></script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-  output = '<script> <% ... %></script>';
-  expect(await minify(input, { collapseWhitespace: true, minifyJS: true })).toBe(output);
-  output = '<script>\n<% ... %></script>';
-  expect(await minify(input, {
-    collapseWhitespace: true,
-    minifyJS: true,
-    preserveLineBreaks: true
-  })).toBe(output);
-
-  input = '<script>// <% ... %>\n</script>';
-  output = '<script></script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-  expect(await minify(input, { collapseWhitespace: true, minifyJS: true })).toBe(output);
-  expect(await minify(input, {
-    collapseWhitespace: true,
-    minifyJS: true,
-    preserveLineBreaks: true
-  })).toBe(output);
-
-  input = '<script>// \n<% ... %>\n</script>';
-  output = '<script> \n<% ... %>\n</script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-  output = '<script> <% ... %> </script>';
-  expect(await minify(input, { collapseWhitespace: true, minifyJS: true })).toBe(output);
-  output = '<script>\n<% ... %>\n</script>';
-  expect(await minify(input, {
-    collapseWhitespace: true,
-    minifyJS: true,
-    preserveLineBreaks: true
-  })).toBe(output);
-
-  input = '<script>function f(){  return <?php ?>  }</script>';
-  output = '<script>function f(){return <?php ?>  }</script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-  output = '<script>function f(){return <?php ?> }</script>';
-  expect(await minify(input, { collapseWhitespace: true, minifyJS: true })).toBe(output);
-
-  input = '<script>function f(){  return "<?php ?>"  }</script>';
-  output = '<script>function f(){return"<?php ?>"}</script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-  expect(await minify(input, { collapseWhitespace: true, minifyJS: true })).toBe(output);
-});
-
-test('event minification', async () => {
-  let input, output;
-
-  input = '<div only="alert(a + b)" one=";return false;"></div>';
-  expect(await minify(input, { minifyJS: true })).toBe(input);
-
-  input = '<div onclick="alert(a + b)"></div>';
-  output = '<div onclick="alert(a+b)"></div>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<a href="/" onclick="this.href = getUpdatedURL (this.href);return true;">test</a>';
-  output = '<a href="/" onclick="return this.href=getUpdatedURL(this.href),!0">test</a>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<a onclick="try{ dcsMultiTrack(\'DCS.dcsuri\',\'USPS\',\'WT.ti\') }catch(e){}"> foobar</a>';
-  output = '<a onclick=\'try{dcsMultiTrack("DCS.dcsuri","USPS","WT.ti")}catch(e){}\'> foobar</a>';
-  expect(await minify(input, { minifyJS: { mangle: false } })).toBe(output);
-  expect(await minify(input, { minifyJS: { mangle: false }, quoteCharacter: '\'' })).toBe(output);
-
-  input = '<a onclick="try{ dcsMultiTrack(\'DCS.dcsuri\',\'USPS\',\'WT.ti\') }catch(e){}"> foobar</a>';
-  output = '<a onclick="try{dcsMultiTrack(&#34;DCS.dcsuri&#34;,&#34;USPS&#34;,&#34;WT.ti&#34;)}catch(e){}"> foobar</a>';
-  expect(await minify(input, { minifyJS: { mangle: false }, quoteCharacter: '"' })).toBe(output);
-
-  input = '<a onClick="_gaq.push([\'_trackEvent\', \'FGF\', \'banner_click\']);"></a>';
-  output = '<a onclick=\'_gaq.push(["_trackEvent","FGF","banner_click"])\'></a>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-  expect(await minify(input, { minifyJS: true, quoteCharacter: '\'' })).toBe(output);
-
-  input = '<a onClick="_gaq.push([\'_trackEvent\', \'FGF\', \'banner_click\']);"></a>';
-  output = '<a onclick="_gaq.push([&#34;_trackEvent&#34;,&#34;FGF&#34;,&#34;banner_click&#34;])"></a>';
-  expect(await minify(input, { minifyJS: true, quoteCharacter: '"' })).toBe(output);
-
-  input = '<button type="button" onclick=";return false;" id="appbar-guide-button"></button>';
-  output = '<button type="button" onclick="return!1" id="appbar-guide-button"></button>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<button type="button" onclick=";return false;" ng-click="a(1 + 2)" data-click="a(1 + 2)"></button>';
-  output = '<button type="button" onclick="return!1" ng-click="a(1 + 2)" data-click="a(1 + 2)"></button>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-  expect(await minify(input, { minifyJS: true, customEventAttributes: [] })).toBe(input);
-  output = '<button type="button" onclick=";return false;" ng-click="a(3)" data-click="a(1 + 2)"></button>';
-  expect(await minify(input, { minifyJS: true, customEventAttributes: [/^ng-/] })).toBe(output);
-  output = '<button type="button" onclick="return!1" ng-click="a(3)" data-click="a(1 + 2)"></button>';
-  expect(await minify(input, { minifyJS: true, customEventAttributes: [/^on/, /^ng-/] })).toBe(output);
-
-  input = '<div onclick="<?= b ?>"></div>';
-  expect(await minify(input, { minifyJS: true })).toBe(input);
-
-  input = '<div onclick="alert(a + <?= b ?>)"></div>';
-  output = '<div onclick="alert(a+ <?= b ?>)"></div>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-
-  input = '<div onclick="alert(a + \'<?= b ?>\')"></div>';
-  output = '<div onclick=\'alert(a+"<?= b ?>")\'></div>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
-});
-
-test('escaping closing script tag', async () => {
-  const input = '<script>window.jQuery || document.write(\'<script src="jquery.js"><\\/script>\')</script>';
-  const output = '<script>window.jQuery||document.write(\'<script src="jquery.js"><\\/script>\')</script>';
-  expect(await minify(input, { minifyJS: true })).toBe(output);
 });
 
 test('srcset attribute minification', async () => {

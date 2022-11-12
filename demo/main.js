@@ -71,13 +71,6 @@ const defaultOptions = [
     helpText: 'Specify a maximum line length. Compressed output will be split by newlines at valid HTML split-points'
   },
   {
-    id: 'minifyJS',
-    type: 'checkbox',
-    label: 'Minify JavaScript',
-    helpText: 'Minify JavaScript in script elements and event attributes (uses <code>Terser</code>)',
-    checked: true
-  },
-  {
     id: 'noNewlinesBeforeTagClose',
     type: 'checkbox',
     label: 'No newline before Tag Close',
